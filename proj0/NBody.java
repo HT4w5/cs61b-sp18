@@ -5,7 +5,7 @@ public class NBody {
         return in.readDouble();
     }
 
-    public static Planet[] readps(String filePath) {
+    public static Planet[] readPlanets(String filePath) {
         In in = new In(filePath);
         int numps = in.readInt();
         Planet[] ps = new Planet[numps];
@@ -24,7 +24,7 @@ public class NBody {
         String filename = args[2];
 
         double radius = readRadius(filename);
-        Planet[] ps = readps(filename);
+        Planet[] ps = readPlanets(filename);
 
         // Initialize universe.
         StdDraw.enableDoubleBuffering();
@@ -49,8 +49,8 @@ public class NBody {
                 ps[i].update(dt, xForces[i], yForces[i]);
                 ps[i].draw();
             }
-            StdDraw.show();
-            StdDraw.pause(10);
+            //StdDraw.show();
+            //StdDraw.pause(10);
 
             time += dt;
         }

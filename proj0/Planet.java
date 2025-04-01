@@ -8,7 +8,7 @@ public class Planet {
     public String imgFileName;
 
     // Physics constants.
-    public static final double GRVT = 6.67e-11;
+    private static final double GRVT = 6.67e-11;
 
     // Constructors.
     public Planet(double xP, double yP, double xV, double yV, double m, String img) {
@@ -36,7 +36,7 @@ public class Planet {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    public double calcDistanceSquared(Planet p) {
+    private double calcDistanceSquared(Planet p) {
         double dx = xxPos - p.xxPos;
         double dy = yyPos - p.yyPos;
         return dx * dx + dy * dy;
@@ -48,32 +48,12 @@ public class Planet {
 
     public double calcForceExertedByX(Planet p) {
         double dx = xxPos - p.xxPos;
-        if (dx < 0) {
-            dx = -dx;
-        }
-        double force = calcForceExertedBy(p);
-        double dist = calcDistance(p);
-        return force * dx / dist;
-    }
-
-    public double calcForceExertedByY(Planet p) {
-        double dy = yyPos - p.yyPos;
-        if (dy < 0) {
-            dy = -dy;
-        }
-        double force = calcForceExertedBy(p);
-        double dist = calcDistance(p);
-        return force * dy / dist;
-    }
-
-    public double calcSignedForceExertedByX(Planet p) {
-        double dx = xxPos - p.xxPos;
         double force = calcForceExertedBy(p);
         double dist = calcDistance(p);
         return -force * dx / dist;
     }
 
-    public double calcSignedForceExertedByY(Planet p) {
+    public double calcForceExertedByY(Planet p) {
         double dy = yyPos - p.yyPos;
         double force = calcForceExertedBy(p);
         double dist = calcDistance(p);
@@ -86,7 +66,7 @@ public class Planet {
             if (this.equals(p)) {
                 continue;
             } else {
-                netXF += calcSignedForceExertedByX(p);
+                netXF += calcForceExertedByX(p);
             }
         }
 
@@ -99,7 +79,7 @@ public class Planet {
             if (this.equals(p)) {
                 continue;
             } else {
-                netYF += calcSignedForceExertedByY(p);
+                netYF += calcForceExertedByY(p);
             }
         }
 
@@ -118,6 +98,6 @@ public class Planet {
     }
 
     public void draw() {
-        StdDraw.picture(xxPos, yyPos, imgFileName);
+        StdDraw.picture(xxPos, yyPos, "images/" + imgFileName);
     }
 }

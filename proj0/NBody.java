@@ -12,7 +12,7 @@ public class NBody {
         in.readDouble();
         for (int i = 0; i < numps; ++i) {
             ps[i] = new Planet(in.readDouble(), in.readDouble(), in.readDouble(), in.readDouble(), in.readDouble(),
-                    "images\\" + in.readString());
+                    in.readString());
         }
 
         return ps;

@@ -1,19 +1,19 @@
 public class LinkedListDeque<T> {
     // Node class.
-    private static class _LLDNode<T> {
+    private static class LLDNode<T> {
         // Instance variables.
         T _item;
-        _LLDNode<T> _prev;
-        _LLDNode<T> _next;
+        LLDNode<T> _prev;
+        LLDNode<T> _next;
 
         // Constructor.
-        public _LLDNode() {
+        public LLDNode() {
             _item = null;
             _prev = null;
             _next = null;
         }
 
-        public _LLDNode(T item, _LLDNode<T> prev, _LLDNode<T> next) {
+        public LLDNode(T item, LLDNode<T> prev, LLDNode<T> next) {
             _item = item;
             _prev = prev;
             _next = next;
@@ -21,13 +21,13 @@ public class LinkedListDeque<T> {
     }
 
     // Instance variables.
-    int _size;
-    _LLDNode<T> _sentinal;
+    private int _size;
+    private LLDNode<T> _sentinal;
 
     // Constructor.
     public LinkedListDeque() {
         // Create sentinal node.
-        _sentinal = new _LLDNode<>();
+        _sentinal = new LLDNode<>();
         _sentinal._next = _sentinal;
         _sentinal._prev = _sentinal;
         _size = 0;
@@ -36,15 +36,15 @@ public class LinkedListDeque<T> {
     // Methods.
     public void addFirst(T item) {
         _size += 1;
-        _LLDNode<T> next = _sentinal._next;
-        _sentinal._next = new _LLDNode<>(item, _sentinal, next);
+        LLDNode<T> next = _sentinal._next;
+        _sentinal._next = new LLDNode<>(item, _sentinal, next);
         next._prev = _sentinal._next;
     }
 
     public void addLast(T item) {
         _size += 1;
-        _LLDNode<T> prev = _sentinal._prev;
-        _sentinal._prev = new _LLDNode<>(item, prev, _sentinal);
+        LLDNode<T> prev = _sentinal._prev;
+        _sentinal._prev = new LLDNode<>(item, prev, _sentinal);
         prev._next = _sentinal._prev;
     }
 
@@ -57,7 +57,9 @@ public class LinkedListDeque<T> {
     }
 
     public T removeFirst() {
-        _size -= 1;
+        if (_size > 0) {
+            _size -= 1;
+        }
         T item = _sentinal._next._item;
         // Remove from ring.
         _sentinal._next = _sentinal._next._next;
@@ -66,7 +68,9 @@ public class LinkedListDeque<T> {
     }
 
     public T removeLast() {
-        _size -= 1;
+        if (_size > 0) {
+            _size -= 1;
+        }
         T item = _sentinal._prev._item;
         // Remove from ring.
         _sentinal._prev = _sentinal._prev._prev;
@@ -79,9 +83,10 @@ public class LinkedListDeque<T> {
         if (index >= _size) {
             return null;
         } else {
-            _LLDNode<T> node = _sentinal._next;
+            LLDNode<T> node = _sentinal._next;
             while (index != 0) {
                 node = node._next;
+                index--;
             }
             return node._item;
         }
@@ -92,21 +97,22 @@ public class LinkedListDeque<T> {
         if (index >= _size) {
             return null;
         } else {
-            return getRecursiveHelper(index);
+            LLDNode<T> node = _sentinal._next;
+            return getRecursiveHelper(node, index);
         }
     }
 
-    private T getRecursiveHelper(int index) {
+    private T getRecursiveHelper(LLDNode<T> node, int index) {
         // Base case.
         if (index == 0) {
-            return _sentinal._next._item;
+            return node._item;
         } else {
-            return getRecursiveHelper(index - 1); // Recursion.
+            return getRecursiveHelper(node._next, index - 1); // Recursion.
         }
     }
 
     public void printDeque() {
-        _LLDNode<T> node = _sentinal._next;
+        LLDNode<T> node = _sentinal._next;
         for (int i = 0; i < _size; ++i) {
             System.out.print(node._item);
             System.out.print(" ");

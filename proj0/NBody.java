@@ -49,8 +49,8 @@ public class NBody {
                 ps[i].update(dt, xForces[i], yForces[i]);
                 ps[i].draw();
             }
-            //StdDraw.show();
-            //StdDraw.pause(10);
+            StdDraw.show();
+            StdDraw.pause(10);
 
             time += dt;
         }

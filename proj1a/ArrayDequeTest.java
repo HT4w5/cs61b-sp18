@@ -100,22 +100,89 @@ public class ArrayDequeTest {
 
         boolean passed = checkEmpty(true, lld1.isEmpty());
 
-        for (int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 114514; ++i) {
             lld1.addLast(i);
         }
 
-        for (int i = 0; i < 6; ++i) {
-            passed = lld1.get(i) == i && passed;
+        for (int i = 0; i < 114514; ++i) {
+            int res = lld1.get(i);
+            passed = res == i && passed;
+            // System.out.println(res);
         }
 
         ArrayDeque<Integer> lld2 = new ArrayDeque<Integer>();
 
-        for (int i = 19; i >= 0; --i) {
+        for (int i = 114513; i >= 0; --i) {
             lld2.addFirst(i);
         }
 
-        for (int i = 0; i < 6; ++i) {
-            passed = lld2.get(i) == i && passed;
+        for (int i = 0; i < 114514; ++i) {
+            int res = lld2.get(i);
+            passed = res == i && passed;
+            // System.out.println(res);
+        }
+
+        printTestStatus(passed);
+    }
+
+    public static void addFillTest() {
+        System.out.println("Running fill/empty test");
+
+        ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
+
+        boolean passed = true;
+
+        final int ITS = 100;
+
+        for (int i = 0; i < ITS; ++i) {
+            lld1.addFirst(i);
+        }
+
+        for (int i = 0; i < ITS; ++i) {
+            lld1.removeFirst();
+        }
+
+        for (int i = 0; i < ITS; ++i) {
+            lld1.addFirst(i);
+        }
+
+        for (int i = 0; i < ITS; ++i) {
+            int res = lld1.removeLast();
+            passed = res == i && passed;
+        }
+
+        printTestStatus(passed);
+    }
+
+    public static void addStressTest() {
+        System.out.println("Running stress test");
+
+        ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
+
+        boolean passed = true;
+
+        final int ITS = 114514;
+
+        for (int i = 0; i < ITS; ++i) {
+            lld1.addFirst(i);
+            lld1.addLast(i);
+        }
+
+        for (int i = 0; i < ITS; ++i) {
+            lld1.removeFirst();
+        }
+
+        for (int i = 0; i < ITS; ++i) {
+            lld1.addFirst(i);
+        }
+
+        for (int i = ITS - 1; i >= 0; --i) {
+            int res = lld1.removeLast();
+            passed = res == i && passed;
+        }
+        for (int i = 0; i < ITS; ++i) {
+            int res = lld1.removeLast();
+            passed = res == i && passed;
         }
 
         printTestStatus(passed);
@@ -126,5 +193,7 @@ public class ArrayDequeTest {
         addIsEmptySizeTest();
         addRemoveTest();
         addGetTest();
+        addFillTest();
+        addStressTest();
     }
 }

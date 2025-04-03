@@ -1,5 +1,5 @@
 public class ArrayDeque<T> {
-    private static final int _INIT_SIZE = 8;
+    private static final int INIT_SIZE = 8;
     // Instance variables.
     private T[] _data;
     private int _logicalSize;
@@ -9,10 +9,10 @@ public class ArrayDeque<T> {
 
     // Constructor.
     public ArrayDeque() {
-        _data = (T[]) new Object[_INIT_SIZE];
+        _data = (T[]) new Object[INIT_SIZE];
         _logicalSize = 0;
-        _allocatedSize = _INIT_SIZE;
-        _frontIndex = _INIT_SIZE - 1;
+        _allocatedSize = INIT_SIZE;
+        _frontIndex = INIT_SIZE - 1;
         _backIndex = 0;
     }
 
@@ -37,14 +37,15 @@ public class ArrayDeque<T> {
         T[] newData = (T[]) new Object[newSize];
         // dequeue all items from old data.
         int index = _frontIndex;
-        for (int i = 0; i < _allocatedSize; ++i) {
+        for (int i = 0; i < _logicalSize; ++i) {
             index = nextIndex(index);
             newData[i] = _data[index];
         }
         _data = newData;
         // Reset front and back indexes.
         _frontIndex = newSize - 1;
-        _backIndex = 0;
+        _backIndex = _logicalSize;
+        _allocatedSize = newSize;
     }
 
     public void addFirst(T item) {
@@ -76,6 +77,15 @@ public class ArrayDeque<T> {
     }
 
     public T removeFirst() {
+        // Bounds check.
+        if (_logicalSize == 0) {
+            return null;
+        } else if (_allocatedSize / _logicalSize >= 4) {
+            // Resize if usage factor is lower than 25%.
+            if (_allocatedSize > 8) {
+                resize(_allocatedSize / 2);
+            }
+        }
         _logicalSize--;
         _frontIndex = nextIndex(_frontIndex);
         T item = _data[_frontIndex];
@@ -84,6 +94,15 @@ public class ArrayDeque<T> {
     }
 
     public T removeLast() {
+        // Bounds check.
+        if (_logicalSize == 0) {
+            return null;
+        } else if (_allocatedSize / _logicalSize >= 4) {
+            // Resize if usage factor is lower than 25%.
+            if (_allocatedSize > 8) {
+                resize(_allocatedSize / 2);
+            }
+        }
         _logicalSize--;
         _backIndex = prevIndex(_backIndex);
         T item = _data[_backIndex];

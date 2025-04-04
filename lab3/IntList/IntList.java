@@ -241,4 +241,37 @@ public class IntList {
         out.format(")");
         return out.toString();
     }
+
+    public static IntList reverse(IntList list) {
+        // Check for null.
+        if (list == null) {
+            return null;
+        }
+
+        IntList head = list;
+        // Calculate length.
+        int len = 1;
+        IntList node = list;
+        while (node.rest != null) {
+            node = node.rest;
+            len++;
+        }
+
+        // Build address array.
+        IntList[] addrList = new IntList[len];
+        addrList[0] = head;
+        node = head.rest;
+        for (int i = 1; i < len; ++i) {
+            addrList[i] = node;
+            node = node.rest;
+        }
+
+        // Remap refs.
+        for (int i = len - 1; i > 0; --i) {
+            addrList[i].rest = addrList[i - 1];
+        }
+        addrList[0].rest = null;
+
+        return addrList[len - 1];
+    }
 }

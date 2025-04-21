@@ -32,8 +32,8 @@ public class TestArrayDequeGold {
             if (factor > 0.5) {
                 actual = sad0.removeFirst();
                 expected = ads0.removeFirst();
+                opRecord += "removeFirst()\n";
                 assertNotNull(opRecord, actual);
-                opRecord += "removeFirst(): " + actual + "\n";
                 /*
                  * String errMsg = "Error occured in add / remove test:" +
                  * " removeFirst() returned Integer with value "
@@ -43,8 +43,8 @@ public class TestArrayDequeGold {
             } else {
                 actual = sad0.removeLast();
                 expected = ads0.removeLast();
+                opRecord += "removeLast()\n";
                 assertNotNull(opRecord, actual);
-                opRecord += "removeLast(): " + actual + "\n";
                 /*
                  * String errMsg = "Error occured in add / remove test:" +
                  * " removeLast() returned Integer with value "

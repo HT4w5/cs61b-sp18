@@ -13,26 +13,26 @@ import byog.Core.Structures.*;
 // World class that represents terrain data.
 public class World {
 
-    /*
-     * BEGIN FIELDS.
-     */
+    ////////////////////
+    //  BEGIN FIELDS  //
+    ////////////////////
 
-    private final int WIDTH;
-    private final int HEIGHT;
-    private final long SEED;
+    public final int WIDTH;
+    public final int HEIGHT;
+    public final long SEED;
     private TETile[][] world;
 
     private Vector<Structure> structures;
 
     private TERenderer ter;
 
-    /*
-     * END FIELDS.
-     */
+    //////////////////
+    //  END FIELDS  //
+    //////////////////
 
-    /*
-     * BEGIN CONSTRUCTORS.
-     */
+    //////////////////////////
+    //  BEGIN CONSTRUCTORS  //
+    //////////////////////////
 
     /**
      * Counstructor specifying width and height of world.
@@ -58,13 +58,13 @@ public class World {
         this(w, h, ter, System.currentTimeMillis());
     }
 
-    /*
-     * END CONSTRUCTORS.
-     */
+    ////////////////////////
+    //  END CONSTRUCTORS  //
+    ////////////////////////
 
-    /*
-     * BEGIN WORLD ARRAY MODIFIERS.
-     */
+    ///////////////////////////////////
+    //  BEGIN WORLD ARRAY MODIFIERS  //
+    ///////////////////////////////////
 
     // Set single tile in world array. No bounds check.
     public void setTile(int xPos, int yPos, TETile t) {
@@ -105,7 +105,15 @@ public class World {
         }
     }
 
-    // Fill rectangular area of tiles in world array. No bounds check.
+    /**
+     * Fill rectangular area of tiles in world array. No bounds check.
+     * 
+     * @param xPos
+     * @param yPos
+     * @param xLen
+     * @param yLen
+     * @param t
+     */
     public void fillTiles(int xPos, int yPos, int xLen, int yLen, TETile t) {
         for (int i = 0; i < xLen; ++i) {
             for (int j = 0; j < yLen; ++j) {
@@ -114,24 +122,33 @@ public class World {
         }
     }
 
+    /**
+     * Set all tiles to Tileset.NOTHING.
+     */
     public void clear() {
         fillTiles(0, 0, WIDTH, HEIGHT, Tileset.NOTHING);
     }
 
-    /*
-     * END WORLD ARRAY MODIFIERS.
-     */
+    /////////////////////////////////
+    //  END WORLD ARRAY MODIFIERS  //
+    /////////////////////////////////
 
-    /*
-     * BEGIN STRUCT QUEUE METHODS.
-     */
+    //////////////////////////////////
+    //  BEGIN STRUCT QUEUE METHODS. //
+    //////////////////////////////////
 
-    // Add structure.
+    /**
+     * Add structure to world structure vector.
+     * 
+     * @param struct
+     */
     public void addStructure(Structure struct) {
         structures.add(struct);
     }
 
-    // Clear structures.
+    /**
+     * Remove all structures from world structure vector.
+     */
     public void clearStructures() {
         structures.clear();
     }
@@ -143,73 +160,26 @@ public class World {
         }
     }
 
-    /*
-     * END STRUCT QUEUE METHODS.
-     */
+    ////////////////////////////////
+    //  END STRUCT QUEUE METHODS. //
+    ////////////////////////////////
 
-    /*
-     * BEGIN WORLD GENERATION METHODS.
-     */
 
-    // Generate random structure vector with Rooms from seed.
-    public void genRoomsWorld() {
-        Random random = new Random(SEED);
-        // Generate Rooms.
-        int numRooms = RandomUtils.uniform(random, 16, 32);
-
-        int xPos, yPos, w, h;
-        for (int i = 0; i < numRooms; ++i) {
-            w = RandomUtils.uniform(random, 5, 10);
-            h = RandomUtils.uniform(random, 5, 10);
-            xPos = RandomUtils.uniform(random, WIDTH - w + 1);
-            yPos = RandomUtils.uniform(random, HEIGHT - h + 1);
-            structures.add(new Room(xPos, yPos, w, h));
-        }
-
-        // Generate hallways.
-        int x, y, len;
-        double factor;
-        Room r;
-        for (int i = 0; i < numRooms; ++i) {
-            r = (Room) structures.get(i);
-            // Vertical.
-            factor = RandomUtils.uniform(random);
-            if (factor > 0.5) {
-                x = RandomUtils.uniform(random, r.getXPos(), Math.min(r.getXPos() + r.getWidth() - 1, WIDTH - 3));
-                y = RandomUtils.uniform(random, 0, Math.min(r.getYPos() + r.getHeight() - 1, HEIGHT - 3));
-                len = RandomUtils.uniform(random, 3, Math.max(HEIGHT - y - 1, 4));
-                structures.add(new Hallway(x, y, len, true));
-            }
-            // Horizontal.
-            factor = RandomUtils.uniform(random);
-            factor = RandomUtils.uniform(random);
-            if (factor > 0.5) {
-                y = RandomUtils.uniform(random, r.getYPos(), Math.min(r.getYPos() + r.getHeight() - 1, HEIGHT - 3));
-                x = RandomUtils.uniform(random, 0, Math.min(r.getXPos() + r.getWidth() - 1, WIDTH - 3));
-                len = RandomUtils.uniform(random, 3, Math.max(WIDTH - x - 1, 4));
-                structures.add(new Hallway(x, y, len, false));
-            }
-        }
-    }
-    /*
-     * END WORLD GENERATION METHODS.
-     */
-
-    /*
-     * BEGIN WORLD UPDATE METHODS.
-     */
+    //////////////////////////////////
+    //  BEGIN WORLD UPDATE METHODS  //
+    //////////////////////////////////
 
     // Render one frame from world array.
     public void tick() {
         ter.renderFrame(world);
     }
-    /*
-     * END WORLD UPDATE METHODS.
-     */
+    ////////////////////////////////
+    //  END WORLD UPDATE METHODS  //
+    ////////////////////////////////
 
-    /*
-     * BEGIN DEBUG METHODS.
-     */
+    ///////////////////////////
+    //  BEGIN DEBUG METHODS  //
+    ///////////////////////////
 
     // Get world array.
     public TETile[][] debugGetWorld() {
@@ -226,8 +196,8 @@ public class World {
         return HEIGHT;
     }
 
-    /*
-     * END DEBUG METHODS.
-     */
+    /////////////////////////
+    //  END DEBUG METHODS  //
+    /////////////////////////
 
 }

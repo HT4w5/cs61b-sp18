@@ -1,6 +1,7 @@
 package byog.Core.Structures;
 
 import byog.Core.AbstractStructure;
+import byog.Core.Structure;
 import byog.Core.World;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
@@ -30,13 +31,26 @@ public class Room extends AbstractStructure {
 
     @Override
     public void clip(World world) {
+        // Calculate redundant parts of structure.
+        int xTrunc = Math.max(xPos + width - world.WIDTH, 0);
+        int yTrunc = Math.max(yPos + height - world.HEIGHT, 0);
+
+        if (xPos >= world.WIDTH || yPos >= world.HEIGHT) {
+            return; // Return if xPos or yPos is out of bounds.
+        }
+
         // Fill floor area, overwriting previous tiles.
-        world.fillTiles(xPos + 1, yPos + 1, width - 2, height - 2, floor);
+        world.fillTiles(xPos + 1, yPos + 1, width - 2 - (Math.max(xTrunc, 1) - 1),
+                height - 2 - (Math.max(yTrunc, 1) - 1), floor);
         // Fill walls only if previously empty.
-        world.setTileRowIf(xPos, yPos, width, wall, Tileset.NOTHING);
-        world.setTileRowIf(xPos, yPos + height - 1, width, wall, Tileset.NOTHING);
-        world.setTileCollIf(xPos, yPos, height, wall, Tileset.NOTHING);
-        world.setTileCollIf(xPos + width - 1, yPos, height, wall, Tileset.NOTHING);
+        world.setTileRowIf(xPos, yPos, width - xTrunc, wall, Tileset.NOTHING);
+        if (yTrunc < 1) {
+            world.setTileRowIf(xPos, yPos + height - 1, width - xTrunc, wall, Tileset.NOTHING);
+        }
+        world.setTileCollIf(xPos, yPos, height - yTrunc, wall, Tileset.NOTHING);
+        if (xTrunc < 1) {
+            world.setTileCollIf(xPos + width - 1, yPos, height - yTrunc, wall, Tileset.NOTHING);
+        }
     }
 
     public int getWidth() {
@@ -53,6 +67,42 @@ public class Room extends AbstractStructure {
 
     public TETile getWall() {
         return wall;
+    }
+
+    /**
+     * Check whether this overlaps with other.
+     * 
+     * @param other Other Room.
+     * @return Whether this overlaps with other.
+     * @throws IllegalArgumentException if
+     *                                  {@code other.getClass() != this.getClass()}
+     */
+    public boolean overlapsWith(Structure other) {
+        // Enforce other's type to Room.
+        if (other.getClass() != this.getClass()) {
+            throw new IllegalArgumentException("Can't check overlapping between "
+                    + other.getClass()
+                    + " and "
+                    + this.getClass());
+        }
+
+        Room otherRoom = (Room) other;
+
+        // Calculate boundaries
+        int thisX1 = getXPos();
+        int thisY1 = getYPos();
+        int thisX2 = thisX1 + getWidth() - 1;
+        int thisY2 = thisY1 + getHeight() - 1;
+
+        int otherX1 = otherRoom.getXPos();
+        int otherY1 = otherRoom.getYPos();
+        int otherX2 = otherX1 + otherRoom.getWidth() - 1;
+        int otherY2 = otherY1 + otherRoom.getHeight() - 1;
+
+        return !(thisX2 < otherX1 ||
+                otherX2 < thisX1 ||
+                thisY2 < otherY1 ||
+                otherY2 < thisY1);
     }
 
 }

@@ -118,22 +118,11 @@ public class TestWorld {
         }
     }
 
-    @Test
-    public void testGenRoomsWorld() {
-        for (int i = 0; i < 100; ++i) {
-            TERenderer ter = new TERenderer();
-            World myWorld = new World(50, 50, ter);
-            myWorld.genRoomsWorld();
-            myWorld.clipStructures();
-        }
-    }
-
     public static void main(String[] args) {
         System.out.println("Beginning world render test.\n");
         TERenderer ter = new TERenderer();
         World myWorld = new World(50, 50, ter);
 
-        myWorld.genRoomsWorld();
 
         myWorld.clipStructures();
 

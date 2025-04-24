@@ -1,65 +1,20 @@
 package byog.Core.Structures;
 
 import byog.Core.AbstractStructure;
+import byog.Core.Structure;
 import byog.Core.World;
-import byog.TileEngine.TETile;
-import byog.TileEngine.Tileset;
 
 public class Hallway extends AbstractStructure {
-    private int len;
-    private boolean vertical;
-
-    private TETile floor;
-    private TETile wall;
-
-    // Full constructor.
-    public Hallway(int xPos, int yPos, int len, boolean vertical, TETile floor, TETile wall) {
+    public Hallway(int xPos, int yPos) {
         super(xPos, yPos);
-
-        this.len = len;
-        this.vertical = vertical;
-
-        this.floor = floor;
-        this.wall = wall;
     }
 
-    // Constructor w/o Tile spec.
-    public Hallway(int xPos, int yPos, int len, boolean vertical) {
-        this(xPos, yPos, len, vertical, Tileset.FLOOR, Tileset.WALL);
-    }
-
-    @Override
     public void clip(World world) {
-        int width, height;
-        if (vertical) {
-            width = 3;
-            height = len;
-        } else {
-            height = 3;
-            width = len;
-        }
-        // Fill floor area, overwriting previous tiles.
-        world.fillTiles(xPos + 1, yPos + 1, width - 2, height - 2, floor);
-        // Fill walls only if previously empty.
-        world.setTileRowIf(xPos, yPos, width, wall, Tileset.NOTHING);
-        world.setTileRowIf(xPos, yPos + height - 1, width, wall, Tileset.NOTHING);
-        world.setTileCollIf(xPos, yPos, height, wall, Tileset.NOTHING);
-        world.setTileCollIf(xPos + width - 1, yPos, height, wall, Tileset.NOTHING);
+
     }
 
-    public int getLen() {
-        return len;
+    public boolean overlapsWith(Structure other) {
+        return false;
     }
 
-    public boolean isVertical() {
-        return vertical;
-    }
-
-    public TETile getFloor() {
-        return floor;
-    }
-
-    public TETile getWall() {
-        return wall;
-    }
 }

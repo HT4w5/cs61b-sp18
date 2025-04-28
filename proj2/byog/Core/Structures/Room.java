@@ -35,22 +35,42 @@ public class Room extends AbstractStructure {
         int xTrunc = Math.max(xPos + width - world.WIDTH, 0);
         int yTrunc = Math.max(yPos + height - world.HEIGHT, 0);
 
+        int xTruncLow = Math.max(-xPos, 0);
+        int yTruncLow = Math.max(-yPos, 0);
+
         if (xPos >= world.WIDTH || yPos >= world.HEIGHT) {
             return; // Return if xPos or yPos is out of bounds.
         }
 
-        // Fill floor area, overwriting previous tiles.
-        world.fillTiles(xPos + 1, yPos + 1, width - 2 - (Math.max(xTrunc, 1) - 1),
-                height - 2 - (Math.max(yTrunc, 1) - 1), floor);
-        // Fill walls only if previously empty.
-        world.setTileRowIf(xPos, yPos, width - xTrunc, wall, Tileset.NOTHING);
-        if (yTrunc < 1) {
-            world.setTileRowIf(xPos, yPos + height - 1, width - xTrunc, wall, Tileset.NOTHING);
+        // Fill floor area, which is one pixel thinner than the room on four sides.
+        world.fillTiles(Math.max(xPos + 1, 0), Math.max(yPos + 1, 0),
+                xPos + width - 2 - Math.max(xTrunc - 1, 0),
+                yPos + height - 2 - Math.max(yTrunc - 1, 0),
+                floor);
+
+        // Fill walls.
+        if (yPos >= 0) {
+            world.setTileRowIf(Math.max(xPos, 0), Math.max(yPos, 0), yTruncLow, wall, floor);
         }
-        world.setTileCollIf(xPos, yPos, height - yTrunc, wall, Tileset.NOTHING);
-        if (xTrunc < 1) {
-            world.setTileCollIf(xPos + width - 1, yPos, height - yTrunc, wall, Tileset.NOTHING);
-        }
+
+        /*
+         * Old implemention.
+         * // Fill floor area, overwriting previous tiles.
+         * world.fillTiles(xPos + 1, yPos + 1, width - 2 - (Math.max(xTrunc, 1) - 1),
+         * height - 2 - (Math.max(yTrunc, 1) - 1), floor);
+         * world.fillTiles(xTruncHigh, yTruncHigh, xTruncLow, yTruncLow, floor);
+         * // Fill walls only if previously empty.
+         * world.setTileRowIf(xPos, yPos, width - xTrunc, wall, Tileset.NOTHING);
+         * if (yTrunc < 1) {
+         * world.setTileRowIf(xPos, yPos + height - 1, width - xTrunc, wall,
+         * Tileset.NOTHING);
+         * }
+         * world.setTileCollIf(xPos, yPos, height - yTrunc, wall, Tileset.NOTHING);
+         * if (xTrunc < 1) {
+         * world.setTileCollIf(xPos + width - 1, yPos, height - yTrunc, wall,
+         * Tileset.NOTHING);
+         * }
+         */
     }
 
     public int getWidth() {

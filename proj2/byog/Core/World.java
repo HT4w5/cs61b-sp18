@@ -14,7 +14,7 @@ import byog.Core.Structures.*;
 public class World {
 
     ////////////////////
-    //  BEGIN FIELDS  //
+    // BEGIN FIELDS //
     ////////////////////
 
     public final int WIDTH;
@@ -27,11 +27,11 @@ public class World {
     private TERenderer ter;
 
     //////////////////
-    //  END FIELDS  //
+    // END FIELDS //
     //////////////////
 
     //////////////////////////
-    //  BEGIN CONSTRUCTORS  //
+    // BEGIN CONSTRUCTORS //
     //////////////////////////
 
     /**
@@ -59,48 +59,120 @@ public class World {
     }
 
     ////////////////////////
-    //  END CONSTRUCTORS  //
+    // END CONSTRUCTORS //
     ////////////////////////
 
     ///////////////////////////////////
-    //  BEGIN WORLD ARRAY MODIFIERS  //
+    // BEGIN WORLD ARRAY MODIFIERS //
     ///////////////////////////////////
 
-    // Set single tile in world array. No bounds check.
+    // Set single tile in world array.
     public void setTile(int xPos, int yPos, TETile t) {
+        // Check bounds.
+        if (xPos < 0 || yPos < 0 || xPos >= WIDTH || yPos >= HEIGHT) {
+            throw new IllegalArgumentException("World.setTile: Coordinates out of bounds");
+        }
         world[xPos][yPos] = t;
     }
 
-    // Set horizontal line of tiles in world array. No bounds check.
-    public void setTileRow(int xPos, int yPos, int len, TETile t) {
-        for (int i = 0; i < len; ++i) {
-            world[xPos + i][yPos] = t;
+    // Set horizontal line of tiles in world array. Truncates out of bounds parts.
+    public void setTileRow(int xPos, int yPos, int xEnd, TETile t) {
+        // Basic bounds check.
+        // Check yPos.
+        if (yPos < 0 || yPos >= HEIGHT) {
+            return; // Not in bounds. Do nothing.
+        }
+        // Limit xPos and xEnd to bounds first.
+        // Then check whether combination is valid.
+        if (xPos < 0) {
+            xPos = 0;
+        }
+        if (xEnd >= HEIGHT) {
+            xEnd = HEIGHT - 1;
+        }
+        if (xEnd < xPos) {
+            return; // Empty row. Do nothing.
+        }
+
+        for (; xPos <= xEnd; ++xPos) {
+            world[xPos][yPos] = t;
         }
     }
 
     // Set horizontal line of tiles in world array if previous tile is prev. No
     // bounds check.
-    public void setTileRowIf(int xPos, int yPos, int len, TETile t, TETile prev) {
-        for (int i = 0; i < len; ++i) {
-            if (world[xPos + i][yPos] == prev) {
-                world[xPos + i][yPos] = t;
+    public void setTileRowIf(int xPos, int yPos, int xEnd, TETile t, TETile prev) {
+        // Basic bounds check.
+        // Check yPos.
+        if (yPos < 0 || yPos >= HEIGHT) {
+            return; // Not in bounds. Do nothing.
+        }
+        // Limit xPos and xEnd to bounds first.
+        // Then check whether combination is valid.
+        if (xPos < 0) {
+            xPos = 0;
+        }
+        if (xEnd >= HEIGHT) {
+            xEnd = HEIGHT - 1;
+        }
+        if (xEnd < xPos) {
+            return; // Empty row. Do nothing.
+        }
+
+        for (; xPos <= xEnd; ++xPos) {
+            if (world[xPos][yPos] == prev) {
+                world[xPos][yPos] = t;
             }
         }
     }
 
     // Set vertical collumn of tiles in world array. No bounds check.
-    public void setTileColl(int xPos, int yPos, int len, TETile t) {
-        for (int i = 0; i < len; ++i) {
-            world[xPos][yPos + i] = t;
+    public void setTileColl(int xPos, int yPos, int yEnd, TETile t) {
+        // Basic bounds check.
+        // Check xPos.
+        if (xPos < 0 || xPos >= HEIGHT) {
+            return; // Not in bounds. Do nothing.
+        }
+        // Limit xPos and xEnd to bounds first.
+        // Then check whether combination is valid.
+        if (xPos < 0) {
+            xPos = 0;
+        }
+        if (yEnd >= HEIGHT) {
+            yEnd = HEIGHT - 1;
+        }
+        if (yEnd < yPos) {
+            return; // Empty row. Do nothing.
+        }
+
+        for (; yPos <= yEnd; ++yPos) {
+            world[xPos][yPos] = t;
         }
     }
 
     // Set vertical collumn of tiles in world array if previous tile is prev. No
     // bounds check.
-    public void setTileCollIf(int xPos, int yPos, int len, TETile t, TETile prev) {
-        for (int i = 0; i < len; ++i) {
-            if (world[xPos][yPos + i] == prev) {
-                world[xPos][yPos + i] = t;
+    public void setTileCollIf(int xPos, int yPos, int yEnd, TETile t, TETile prev) {
+        // Basic bounds check.
+        // Check xPos.
+        if (xPos < 0 || xPos >= HEIGHT) {
+            return; // Not in bounds. Do nothing.
+        }
+        // Limit xPos and xEnd to bounds first.
+        // Then check whether combination is valid.
+        if (xPos < 0) {
+            xPos = 0;
+        }
+        if (yEnd >= HEIGHT) {
+            yEnd = HEIGHT - 1;
+        }
+        if (yEnd < yPos) {
+            return; // Empty row. Do nothing.
+        }
+        
+        for (; yPos <= yEnd; ++yPos) {
+            if (world[xPos][yPos] == prev) {
+                world[xPos][yPos] = t;
             }
         }
     }
@@ -114,10 +186,14 @@ public class World {
      * @param yLen
      * @param t
      */
-    public void fillTiles(int xPos, int yPos, int xLen, int yLen, TETile t) {
-        for (int i = 0; i < xLen; ++i) {
-            for (int j = 0; j < yLen; ++j) {
-                world[xPos + i][yPos + j] = t;
+    public void fillTiles(int xPos, int yPos, int xEnd, int yEnd, TETile t) {
+        // Basic bounds check.
+        if (yEnd < yPos || xEnd < xPos) {
+            return;
+        }
+        for (; xPos <= xEnd; ++xPos) {
+            for (int yTmp = yPos; yTmp <= yEnd; ++yTmp) {
+                world[xPos][yTmp] = t;
             }
         }
     }
@@ -126,15 +202,15 @@ public class World {
      * Set all tiles to Tileset.NOTHING.
      */
     public void clear() {
-        fillTiles(0, 0, WIDTH, HEIGHT, Tileset.NOTHING);
+        fillTiles(0, 0, WIDTH - 1, HEIGHT - 1, Tileset.NOTHING);
     }
 
     /////////////////////////////////
-    //  END WORLD ARRAY MODIFIERS  //
+    // END WORLD ARRAY MODIFIERS //
     /////////////////////////////////
 
     //////////////////////////////////
-    //  BEGIN STRUCT QUEUE METHODS. //
+    // BEGIN STRUCT QUEUE METHODS. //
     //////////////////////////////////
 
     /**
@@ -161,12 +237,11 @@ public class World {
     }
 
     ////////////////////////////////
-    //  END STRUCT QUEUE METHODS. //
+    // END STRUCT QUEUE METHODS. //
     ////////////////////////////////
 
-
     //////////////////////////////////
-    //  BEGIN WORLD UPDATE METHODS  //
+    // BEGIN WORLD UPDATE METHODS //
     //////////////////////////////////
 
     // Render one frame from world array.
@@ -174,11 +249,11 @@ public class World {
         ter.renderFrame(world);
     }
     ////////////////////////////////
-    //  END WORLD UPDATE METHODS  //
+    // END WORLD UPDATE METHODS //
     ////////////////////////////////
 
     ///////////////////////////
-    //  BEGIN DEBUG METHODS  //
+    // BEGIN DEBUG METHODS //
     ///////////////////////////
 
     // Get world array.
@@ -197,7 +272,7 @@ public class World {
     }
 
     /////////////////////////
-    //  END DEBUG METHODS  //
+    // END DEBUG METHODS //
     /////////////////////////
 
 }

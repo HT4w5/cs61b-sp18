@@ -123,7 +123,7 @@ public class TestWorld {
         boolean thrown = false;
 
         try {
-            myWorld.fillTiles(4, 4, 5, 3, Tileset.FLOOR);
+            myWorld.fillTiles(-2, 4, 11, 3, Tileset.FLOOR);
         } catch (ArrayIndexOutOfBoundsException e) {
             thrown = true;
         }
@@ -131,7 +131,7 @@ public class TestWorld {
 
         thrown = false;
         try {
-            myWorld.setTileRow(4, 4, 1, Tileset.FLOOR);
+            myWorld.setTileRow(4, -2, 1, Tileset.FLOOR);
         } catch (ArrayIndexOutOfBoundsException e) {
             thrown = true;
         }
@@ -139,7 +139,7 @@ public class TestWorld {
 
         thrown = false;
         try {
-            myWorld.setTileColl(4, 4, 1, Tileset.FLOOR);
+            myWorld.setTileColl(4, 11, -1, Tileset.FLOOR);
         } catch (ArrayIndexOutOfBoundsException e) {
             thrown = true;
         }
@@ -148,7 +148,7 @@ public class TestWorld {
         thrown = false;
         try {
             myWorld.clear();
-            myWorld.setTileRowIf(4, 4, 1, Tileset.FLOOR, Tileset.NOTHING);
+            myWorld.setTileRowIf(12, 4, -10, Tileset.FLOOR, Tileset.NOTHING);
         } catch (ArrayIndexOutOfBoundsException e) {
             thrown = true;
         }
@@ -167,9 +167,9 @@ public class TestWorld {
     public static void main(String[] args) {
         System.out.println("Beginning world render test.\n");
         TERenderer ter = new TERenderer();
-        World myWorld = new World(50, 50, ter);
+        World myWorld = new World(10, 10, ter);
 
-        myWorld.clipStructures();
+        myWorld.fillTiles(1, 1, 12, 2, Tileset.FLOOR);
 
         myWorld.tick();
     }

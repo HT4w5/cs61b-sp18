@@ -45,15 +45,45 @@ public class Maze implements WorldGenerator {
             height = RandomUtils.uniform(random, MIN_HEIGHT, MAX_HEIGHT);
             rooms.add(new Room(xPos, yPos, width, height));
         }
-        // Discard overlapping.
+        // Discard 50% overlapping.
 
+        double factor;
         int origSize = rooms.size();
         for (int i = 0; i < origSize - 1; ++i) {
             for (int j = i + 1; j < origSize; ++j) {
                 if (rooms.get(i).overlapsWith(rooms.get(j))) {
-                    rooms.set(i, null);
-                    break;
+                    factor = RandomUtils.uniform(random);
+                    if (factor < 0.5) {
+                        rooms.set(i, null);
+                        break;
+                    }
                 }
+            }
+        }
+
+        // Draw hallways.
+        Room a, b;
+        for (int i = 0; i < rooms.size() - 1; ++i) {
+            a = rooms.get(i);
+            b = rooms.get(i + 1);
+            if (a == null || b == null) {
+                continue; // Move one step forward if one of the two rooms is null.
+            }
+
+            // Generate and sort start and end coordinates.
+            int x1 = a.getXPos() + RandomUtils.uniform(random, a.getWidth());
+            int y1 = a.getYPos() + RandomUtils.uniform(random, a.getHeight());
+
+            int x2 = b.getXPos() + RandomUtils.uniform(random, b.getWidth());
+            int y2 = b.getYPos() + RandomUtils.uniform(random, b.getHeight());
+
+            if (x1 > x2) {
+                int tmp = x2;
+                x2 = x1;
+                x1 = tmp;
+            }
+            if (y1 > y2) {
+
             }
         }
 

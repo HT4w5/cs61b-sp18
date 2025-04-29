@@ -70,9 +70,20 @@ public class World {
     public void setTile(int xPos, int yPos, TETile t) {
         // Check bounds.
         if (xPos < 0 || yPos < 0 || xPos >= WIDTH || yPos >= HEIGHT) {
-            throw new IllegalArgumentException("World.setTile: Coordinates out of bounds");
+            return;
         }
         world[xPos][yPos] = t;
+    }
+
+    // Set single tile in world array if previous tile is prev.
+    public void setTileIf(int xPos, int yPos, TETile t, TETile prev) {
+        // Check bounds.
+        if (xPos < 0 || yPos < 0 || xPos >= WIDTH || yPos >= HEIGHT) {
+            return;
+        }
+        if (world[xPos][yPos] == prev) {
+            world[xPos][yPos] = t;
+        }
     }
 
     // Set horizontal line of tiles in world array. Truncates out of bounds parts.
@@ -87,8 +98,8 @@ public class World {
         if (xPos < 0) {
             xPos = 0;
         }
-        if (xEnd >= HEIGHT) {
-            xEnd = HEIGHT - 1;
+        if (xEnd >= WIDTH) {
+            xEnd = WIDTH - 1;
         }
         if (xEnd < xPos) {
             return; // Empty row. Do nothing.
@@ -99,8 +110,8 @@ public class World {
         }
     }
 
-    // Set horizontal line of tiles in world array if previous tile is prev. No
-    // bounds check.
+    // Set horizontal line of tiles in world array if previous tile is prev.
+    // Truncates out of bounds parts.
     public void setTileRowIf(int xPos, int yPos, int xEnd, TETile t, TETile prev) {
         // Basic bounds check.
         // Check yPos.
@@ -112,8 +123,8 @@ public class World {
         if (xPos < 0) {
             xPos = 0;
         }
-        if (xEnd >= HEIGHT) {
-            xEnd = HEIGHT - 1;
+        if (xEnd >= WIDTH) {
+            xEnd = WIDTH - 1;
         }
         if (xEnd < xPos) {
             return; // Empty row. Do nothing.
@@ -126,11 +137,11 @@ public class World {
         }
     }
 
-    // Set vertical collumn of tiles in world array. No bounds check.
+    // Set vertical collumn of tiles in world array. Truncates out of bounds parts.
     public void setTileColl(int xPos, int yPos, int yEnd, TETile t) {
         // Basic bounds check.
         // Check xPos.
-        if (xPos < 0 || xPos >= HEIGHT) {
+        if (xPos < 0 || xPos >= WIDTH) {
             return; // Not in bounds. Do nothing.
         }
         // Limit xPos and xEnd to bounds first.
@@ -150,12 +161,12 @@ public class World {
         }
     }
 
-    // Set vertical collumn of tiles in world array if previous tile is prev. No
-    // bounds check.
+    // Set vertical collumn of tiles in world array if previous tile is prev.
+    // Truncates out of bounds parts.
     public void setTileCollIf(int xPos, int yPos, int yEnd, TETile t, TETile prev) {
         // Basic bounds check.
         // Check xPos.
-        if (xPos < 0 || xPos >= HEIGHT) {
+        if (xPos < 0 || xPos >= WIDTH) {
             return; // Not in bounds. Do nothing.
         }
         // Limit xPos and xEnd to bounds first.
@@ -169,7 +180,7 @@ public class World {
         if (yEnd < yPos) {
             return; // Empty row. Do nothing.
         }
-        
+
         for (; yPos <= yEnd; ++yPos) {
             if (world[xPos][yPos] == prev) {
                 world[xPos][yPos] = t;
@@ -178,7 +189,7 @@ public class World {
     }
 
     /**
-     * Fill rectangular area of tiles in world array. No bounds check.
+     * Fill rectangular area of tiles in world array. Truncates out of bounds parts.
      * 
      * @param xPos
      * @param yPos
@@ -188,6 +199,18 @@ public class World {
      */
     public void fillTiles(int xPos, int yPos, int xEnd, int yEnd, TETile t) {
         // Basic bounds check.
+        if (xPos < 0) {
+            xPos = 0;
+        }
+        if (yPos < 0) {
+            yPos = 0;
+        }
+        if (xEnd >= WIDTH) {
+            xEnd = WIDTH - 1;
+        }
+        if (yEnd >= HEIGHT) {
+            yEnd = HEIGHT - 1;
+        }
         if (yEnd < yPos || xEnd < xPos) {
             return;
         }

@@ -31,27 +31,13 @@ public class Room extends AbstractStructure {
 
     @Override
     public void clip(World world) {
-        // Calculate redundant parts of structure.
-        int xTrunc = Math.max(xPos + width - world.WIDTH, 0);
-        int yTrunc = Math.max(yPos + height - world.HEIGHT, 0);
-
-        int xTruncLow = Math.max(-xPos, 0);
-        int yTruncLow = Math.max(-yPos, 0);
-
-        if (xPos >= world.WIDTH || yPos >= world.HEIGHT) {
-            return; // Return if xPos or yPos is out of bounds.
-        }
-
         // Fill floor area, which is one pixel thinner than the room on four sides.
-        world.fillTiles(Math.max(xPos + 1, 0), Math.max(yPos + 1, 0),
-                xPos + width - 2 - Math.max(xTrunc - 1, 0),
-                yPos + height - 2 - Math.max(yTrunc - 1, 0),
-                floor);
-
+        world.fillTiles(xPos + 1, yPos + 1, xPos + width - 2, yPos + height - 2, floor);
         // Fill walls.
-        if (yPos >= 0) {
-            world.setTileRowIf(Math.max(xPos, 0), Math.max(yPos, 0), yTruncLow, wall, floor);
-        }
+        world.setTileRowIf(xPos, yPos, xPos + width - 1, wall, Tileset.NOTHING);
+        world.setTileRowIf(xPos, yPos + height - 1, xPos + width - 1, wall, Tileset.NOTHING);
+        world.setTileCollIf(xPos, yPos, yPos + height - 1, wall, Tileset.NOTHING);
+        world.setTileCollIf(xPos + width - 1, yPos, yPos + height - 1, wall, Tileset.NOTHING);
 
         /*
          * Old implemention.

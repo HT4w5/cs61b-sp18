@@ -7,6 +7,7 @@ import byog.Core.RandomUtils;
 import byog.Core.World;
 import byog.Core.WorldGenerator;
 import byog.Core.Structures.*;
+import byog.TileEngine.Tileset;
 
 public class Maze implements WorldGenerator {
     private final int ROOM_GEN_TRIALS;
@@ -62,28 +63,30 @@ public class Maze implements WorldGenerator {
         }
 
         // Draw hallways.
-        Room a, b;
-        for (int i = 0; i < rooms.size() - 1; ++i) {
-            a = rooms.get(i);
-            b = rooms.get(i + 1);
-            if (a == null || b == null) {
-                continue; // Move one step forward if one of the two rooms is null.
+        Room tmp;
+        Vector<Hallway> hallways = new Vector<>(rooms.size() / 2);
+        int maxLen = Math.max(world.WIDTH, world.HEIGHT);
+        for (int i = 0; i < rooms.size(); ++i) {
+            tmp = rooms.get(i);
+            if (tmp == null) {
+                continue;
             }
 
-            // Generate and sort start and end coordinates.
-            int x1 = a.getXPos() + RandomUtils.uniform(random, a.getWidth());
-            int y1 = a.getYPos() + RandomUtils.uniform(random, a.getHeight());
-
-            int x2 = b.getXPos() + RandomUtils.uniform(random, b.getWidth());
-            int y2 = b.getYPos() + RandomUtils.uniform(random, b.getHeight());
-
-            if (x1 > x2) {
-                int tmp = x2;
-                x2 = x1;
-                x1 = tmp;
+            // Generate random starting points and lengths.
+            factor = RandomUtils.uniform(random);
+            boolean vert = false;
+            if (factor > 0.5) {
+                vert = true;
             }
-            if (y1 > y2) {
 
+            int xStart = tmp.getXPos() + RandomUtils.uniform(random, tmp.getWidth());
+            int yStart = tmp.getYPos() + RandomUtils.uniform(random, tmp.getHeight());
+
+            factor = RandomUtils.uniform(random);
+
+            if (factor > 0.5) {
+                hallways.add(new Hallway(xStart, yStart, vert,
+                        RandomUtils.uniform(random, maxLen), Tileset.FLOOR, Tileset.WALL));
             }
         }
 
@@ -92,6 +95,9 @@ public class Maze implements WorldGenerator {
             if (r != null) {
                 world.addStructure(r);
             }
+        }
+        for (Hallway h : hallways) {
+            world.addStructure(h);
         }
     }
 }

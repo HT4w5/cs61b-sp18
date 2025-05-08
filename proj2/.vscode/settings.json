@@ -9,5 +9,6 @@
         "/home/user2/Devel/cs61b-sp18/library-sp18/javalib/junit-4.12.jar",
         "/home/user2/Devel/cs61b-sp18/library-sp18/javalib/stdlib.jar",
         "/home/user2/Devel/cs61b-sp18/library-sp18/javalib/stdlib-package.jar"
-    ]
+    ],
+    "java.format.settings.url": "eclipse-formatter.xml"
 }

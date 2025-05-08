@@ -22,8 +22,6 @@ public class World {
     public final long SEED;
     private TETile[][] world;
 
-    private Vector<Structure> structures;
-
     private TERenderer ter;
 
     //////////////////
@@ -47,7 +45,6 @@ public class World {
         SEED = seed;
 
         world = new TETile[WIDTH][HEIGHT];
-        structures = new Vector<>(32);
         ter.initialize(w, h);
 
         // Initialize void world.
@@ -68,6 +65,10 @@ public class World {
 
     // Set single tile in world array.
     public void setTile(int xPos, int yPos, TETile t) {
+        // Check tile.
+        if (t == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Check bounds.
         if (xPos < 0 || yPos < 0 || xPos >= WIDTH || yPos >= HEIGHT) {
             return;
@@ -77,6 +78,10 @@ public class World {
 
     // Set single tile in world array if previous tile is prev.
     public void setTileIf(int xPos, int yPos, TETile t, TETile prev) {
+        // Check tile.
+        if (t == null || prev == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Check bounds.
         if (xPos < 0 || yPos < 0 || xPos >= WIDTH || yPos >= HEIGHT) {
             return;
@@ -88,12 +93,16 @@ public class World {
 
     // Set horizontal line of tiles in world array. Truncates out of bounds parts.
     public void setTileRow(int xPos, int yPos, int xEnd, TETile t) {
+        // Check tile.
+        if (t == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Basic bounds check.
         // Check yPos.
         if (yPos < 0 || yPos >= HEIGHT) {
             return; // Not in bounds. Do nothing.
         }
-        // Limit xPos and xEnd to bounds first.
+        // Limit yPos and xEnd to bounds first.
         // Then check whether combination is valid.
         if (xPos < 0) {
             xPos = 0;
@@ -113,12 +122,16 @@ public class World {
     // Set horizontal line of tiles in world array if previous tile is prev.
     // Truncates out of bounds parts.
     public void setTileRowIf(int xPos, int yPos, int xEnd, TETile t, TETile prev) {
+        // Check tile.
+        if (t == null || prev == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Basic bounds check.
         // Check yPos.
         if (yPos < 0 || yPos >= HEIGHT) {
             return; // Not in bounds. Do nothing.
         }
-        // Limit xPos and xEnd to bounds first.
+        // Limit yPos and xEnd to bounds first.
         // Then check whether combination is valid.
         if (xPos < 0) {
             xPos = 0;
@@ -139,6 +152,10 @@ public class World {
 
     // Set vertical collumn of tiles in world array. Truncates out of bounds parts.
     public void setTileColl(int xPos, int yPos, int yEnd, TETile t) {
+        // Check tile.
+        if (t == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Basic bounds check.
         // Check xPos.
         if (xPos < 0 || xPos >= WIDTH) {
@@ -146,8 +163,8 @@ public class World {
         }
         // Limit xPos and xEnd to bounds first.
         // Then check whether combination is valid.
-        if (xPos < 0) {
-            xPos = 0;
+        if (yPos < 0) {
+            yPos = 0;
         }
         if (yEnd >= HEIGHT) {
             yEnd = HEIGHT - 1;
@@ -164,21 +181,24 @@ public class World {
     // Set vertical collumn of tiles in world array if previous tile is prev.
     // Truncates out of bounds parts.
     public void setTileCollIf(int xPos, int yPos, int yEnd, TETile t, TETile prev) {
+        // Check tile.
+        if (t == null || prev == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Basic bounds check.
         // Check xPos.
         if (xPos < 0 || xPos >= WIDTH) {
             return; // Not in bounds. Do nothing.
         }
-        // Limit xPos and xEnd to bounds first.
-        // Then check whether combination is valid.
-        if (xPos < 0) {
-            xPos = 0;
+        // Check yPos.
+        if (yPos < 0) {
+            yPos = 0;
         }
         if (yEnd >= HEIGHT) {
             yEnd = HEIGHT - 1;
         }
         if (yEnd < yPos) {
-            return; // Empty row. Do nothing.
+            return; // Do nothing.
         }
 
         for (; yPos <= yEnd; ++yPos) {
@@ -198,6 +218,10 @@ public class World {
      * @param t
      */
     public void fillTiles(int xPos, int yPos, int xEnd, int yEnd, TETile t) {
+        // Check tile.
+        if (t == null) {
+            throw new IllegalArgumentException("Tile mustn't be null");
+        }
         // Basic bounds check.
         if (xPos < 0) {
             xPos = 0;
@@ -228,40 +252,9 @@ public class World {
         fillTiles(0, 0, WIDTH - 1, HEIGHT - 1, Tileset.NOTHING);
     }
 
-    /////////////////////////////////
+    ///////////////////////////////
     // END WORLD ARRAY MODIFIERS //
-    /////////////////////////////////
-
-    //////////////////////////////////
-    // BEGIN STRUCT QUEUE METHODS. //
-    //////////////////////////////////
-
-    /**
-     * Add structure to world structure vector.
-     * 
-     * @param struct
-     */
-    public void addStructure(Structure struct) {
-        structures.add(struct);
-    }
-
-    /**
-     * Remove all structures from world structure vector.
-     */
-    public void clearStructures() {
-        structures.clear();
-    }
-
-    public void clipStructures() {
-        clear();
-        for (Structure s : structures) {
-            s.clip(this);
-        }
-    }
-
-    ////////////////////////////////
-    // END STRUCT QUEUE METHODS. //
-    ////////////////////////////////
+    ///////////////////////////////
 
     //////////////////////////////////
     // BEGIN WORLD UPDATE METHODS //

@@ -264,9 +264,21 @@ public class World {
     public void tick() {
         ter.renderFrame(world);
     }
-    ////////////////////////////////
+    //////////////////////////////
     // END WORLD UPDATE METHODS //
-    ////////////////////////////////
+    //////////////////////////////
+
+    ///////////////////
+    // BEGIN GETTERS //
+    ///////////////////
+
+    public TETile getTile(int xPos, int yPos) {
+        return world[xPos][yPos];
+    }
+
+    /////////////////
+    // END GETTERS //
+    /////////////////
 
     ///////////////////////////
     // BEGIN DEBUG METHODS //

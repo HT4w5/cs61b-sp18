@@ -3,17 +3,16 @@ package byog.Core.WorldGenerators.Tests;
 import org.junit.Test;
 
 import byog.Core.World;
-import byog.Core.Structures.Room;
-import byog.Core.WorldGenerators.Maze;
+import byog.Core.WorldGenerators.Dungeon;
 import byog.TileEngine.TERenderer;
 
-public class TestMaze {
+public class TestDungeon {
     public static void main(String[] args) {
         System.out.println("Beginning Maze generation test.\n");
         TERenderer ter = new TERenderer();
-        World myWorld = new World(80, 45, ter);
+        World myWorld = new World(81, 45, ter);
 
-        Maze mg = new Maze(myWorld);
+        Dungeon mg = new Dungeon(myWorld);
         mg.generate();
 
         myWorld.tick();
@@ -23,10 +22,10 @@ public class TestMaze {
     public void stressTest() {
         System.out.println("Beginning Maze generation test.\n");
         TERenderer ter = new TERenderer();
-        World myWorld = new World(80, 45, ter);
+        World myWorld = new World(81, 45, ter);
 
         for (int i = 0; i < 100; ++i) {
-            Maze mz = new Maze(myWorld);
+            Dungeon mz = new Dungeon(myWorld);
             mz.generate();
             myWorld.clear();
         }

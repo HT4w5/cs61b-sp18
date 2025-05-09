@@ -11,7 +11,7 @@ import byog.Core.Structures.*;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
-public class Maze extends AbstractWorldGenerator {
+public class Dungeon extends AbstractWorldGenerator {
     private final int ROOM_GEN_TRIALS;
 
     private final int ROOM_MIN_WIDTH;
@@ -21,11 +21,17 @@ public class Maze extends AbstractWorldGenerator {
     private final TETile FLOOR;
     private final TETile WALL;
 
+    private final int WINDING_PERCENT;
+
     private Vector<Rect> rooms;
 
-    public Maze(World world, int roomGenTrials, int minWidth, int maxWidth, int minHeight,
+    public Dungeon(World world, int roomGenTrials, int minWidth, int maxWidth, int minHeight,
             int maxHeight, TETile floor, TETile wall) {
         super(world);
+        // Check world size: must be odd.
+        if (world.WIDTH % 2 == 0 || world.HEIGHT % 2 == 0) {
+            throw new IllegalArgumentException("Maze generator only works with odd-sized worlds");
+        }
         ROOM_GEN_TRIALS = roomGenTrials;
         ROOM_MIN_WIDTH = minWidth;
         ROOM_MAX_WIDTH = maxWidth;
@@ -34,34 +40,44 @@ public class Maze extends AbstractWorldGenerator {
         FLOOR = floor;
         WALL = wall;
 
+        WINDING_PERCENT = 50; // TODO: Add to params.
+
         rooms = new Vector<>(ROOM_GEN_TRIALS / 3); // TODO: Optimize pre-allocation.
     }
 
-    public Maze(World world, int roomGenTrials, int minWidth, int maxWidth, int minHeight,
+    public Dungeon(World world, int roomGenTrials, int minWidth, int maxWidth, int minHeight,
             int maxHeight) {
         this(world, roomGenTrials, minWidth, maxWidth, minHeight, maxHeight, Tileset.FLOOR,
                 Tileset.WALL);
     }
 
-    public Maze(World world) {
-        this(world, 1000, 3, 8, 3, 8);
+    public Dungeon(World world) {
+        this(world, 500, 3, 8, 3, 8);
     }
 
     @Override
     public void generate() {
+        // Fill world with walls.
+        world.fillTiles(0, 0, world.WIDTH - 1, world.HEIGHT - 1, WALL);
         generateRooms();
 
         for (Rect r : rooms) {
             r.clip(world);
         }
+
     }
 
     private void generateRooms() {
         for (int i = 0; i < ROOM_GEN_TRIALS; ++i) {
-            Rect room = new Rect(RandomUtils.uniform(random, world.WIDTH - 1),
-                    RandomUtils.uniform(random, world.HEIGHT - 1),
-                    RandomUtils.uniform(random, ROOM_MIN_WIDTH, ROOM_MAX_WIDTH + 1),
-                    RandomUtils.uniform(random, ROOM_MIN_HEIGHT, ROOM_MAX_HEIGHT + 1), FLOOR);
+            // Generate random size and position for each room.
+            // Make sure size and pos are odd.
+            int w = makeOdd(RandomUtils.uniform(random, ROOM_MIN_WIDTH, ROOM_MAX_WIDTH + 1));
+            int h = makeOdd(RandomUtils.uniform(random, ROOM_MIN_HEIGHT, ROOM_MAX_HEIGHT + 1));
+
+            int x = makeOdd(RandomUtils.uniform(random, world.WIDTH - 1 - w));
+            int y = makeOdd(RandomUtils.uniform(random, world.HEIGHT - 1 - h));
+
+            Rect room = new Rect(x, y, w, h, FLOOR);
 
             boolean overlaps = false;
             for (Rect r : rooms) {
@@ -77,6 +93,21 @@ public class Maze extends AbstractWorldGenerator {
 
             rooms.add(room);
         }
+    }
+
+    private int makeOdd(int n) {
+        if ((n & 1) == 0) {
+            return n + 1;
+        } else {
+            return n;
+        }
+    }
+
+    private void generateMaze(int xPos, int yPos) {
+        world.setTile(xPos, yPos, FLOOR);
+        
+
+
     }
 
     /*

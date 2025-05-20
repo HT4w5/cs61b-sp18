@@ -22,6 +22,14 @@ public class Rect extends AbstractStructure {
         world.fillTiles(xPos, yPos, xPos + width - 1, yPos + height - 1, tile);
     }
 
+    public void clipMask(int[][] regionMask, int num) {
+        for (int i = xPos; i < xPos + width - 1; ++i) {
+            for (int j = yPos; j < xPos + width - 1; ++j) {
+                regionMask[i][j] = num;
+            }
+        }
+    }
+
     @Override
     public boolean overlapsWith(Structure other) {
         if (other instanceof Rect) {

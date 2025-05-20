@@ -276,6 +276,21 @@ public class World {
         return world[xPos][yPos];
     }
 
+    public TETile getTile(Position pos) {
+        return world[pos.getX()][pos.getY()];
+    }
+
+    public boolean contains(Position pos) {
+        if (pos.getX() >= 0 &&
+                pos.getY() >= 0 &&
+                pos.getX() < WIDTH &&
+                pos.getY() < HEIGHT) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /////////////////
     // END GETTERS //
     /////////////////

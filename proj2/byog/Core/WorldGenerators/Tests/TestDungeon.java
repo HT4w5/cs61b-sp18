@@ -10,9 +10,9 @@ public class TestDungeon {
     public static void main(String[] args) {
         System.out.println("Beginning Maze generation test.\n");
         TERenderer ter = new TERenderer();
-        World myWorld = new World(81, 45, ter);
+        World myWorld = new World(19, 19, ter, 114514);
 
-        Dungeon mg = new Dungeon(myWorld);
+        Dungeon mg = new Dungeon(myWorld, 4, 2, 4, 2, 4);
         mg.generate();
 
         myWorld.tick();

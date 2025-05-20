@@ -61,4 +61,22 @@ public class Position {
         }
         return result;
     }
+
+    public boolean isAdjacent(Position other) {
+        if(xPos==other.xPos) {
+            if(Math.abs(yPos-other.yPos)==1) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if(yPos==other.yPos) {
+            if(Math.abs(xPos-other.xPos)==1) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }

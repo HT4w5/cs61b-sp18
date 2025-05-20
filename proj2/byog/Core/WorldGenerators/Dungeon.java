@@ -1,6 +1,7 @@
 package byog.Core.WorldGenerators;
 
 import java.nio.file.DirectoryIteratorException;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,6 +38,7 @@ public class Dungeon extends AbstractWorldGenerator {
     private final TETile DOOR;
 
     private final int WINDING_PERCENT;
+    private final int EXTRA_CONNECTOR_CHANCE;
 
     private Vector<Rect> rooms;
     private int[][] regionMask;
@@ -58,6 +60,7 @@ public class Dungeon extends AbstractWorldGenerator {
         WALL = wall;
 
         WINDING_PERCENT = 50; // TODO: Add to params.
+        EXTRA_CONNECTOR_CHANCE = 10000;
         DOOR = Tileset.LOCKED_DOOR;
 
         rooms = new Vector<>(ROOM_GEN_TRIALS / 3); // TODO: Optimize pre-allocation.
@@ -101,6 +104,9 @@ public class Dungeon extends AbstractWorldGenerator {
 
         // Connect regions.
         connectRegions();
+
+        removeDeadEnds();
+        removeExtraWalls();
     }
 
     private void generateRooms() {
@@ -218,7 +224,7 @@ public class Dungeon extends AbstractWorldGenerator {
                 }
                 // Count adjacent regions.
                 Position pos = new Position(i, j);
-                Set<Integer> adjRegions = new TreeSet<>();
+                Set<Integer> adjRegions = new HashSet<>();
                 for (Direction dir : Direction.values()) {
                     Position tmpPos = pos.add(dir);
                     if (world.contains(tmpPos)) {
@@ -241,47 +247,94 @@ public class Dungeon extends AbstractWorldGenerator {
 
         Position[] connectors = connectorsMap.keySet().toArray(new Position[0]);
 
-        // Shuffle connectors.
-        RandomUtils.shuffle(random, connectors);
+        // for (int i = 0; i < connectors.length; ++i) {
+        // world.setTile(connectors[i].getX(), connectors[i].getY(), DOOR);
+        // }
 
-        // Record region states and map merged regions to same number.
         Set<Integer> openRegions = new HashSet<>();
-        int[] regionMap = new int[currentRegion + 1]; // Index == region number. Ignore [0].
-        for (int i = 1; i <= currentRegion; ++i) {
+        int[] merged = new int[currentRegion + 1];
+
+        for (int i = 0; i < currentRegion; ++i) {
+            merged[i] = i;
             openRegions.add(i);
         }
+
+        RandomUtils.shuffle(random, connectors);
 
         int index = 0;
         while (openRegions.size() > 1) {
             Position connector = connectors[index];
-            // Find out whether connector is valid.
-            boolean valid = false;
-            int mergedNumber = queryRegionMap(regionMap,
-                    connectorsMap.get(connector).iterator().next().intValue());
-            for (Integer i : connectorsMap.get(connectors[index])) {
-                if (mergedNumber != queryRegionMap(regionMap, i.intValue())) {
-                    valid = true;
-                    break;
-                }
-            }
-            if (!valid) {
+            if (connector == null) {
                 ++index;
                 continue;
             }
-            // Set door.
-            world.setTile(connector.getX(), connector.getY(), DOOR);
+            addJunction(connector);
 
-            for (Integer i : connectorsMap.get(connectors[index])) {
-                // Remove merged regions from set.
-                openRegions.remove(regionMap[i.intValue()]);
-                // Map regions to mergedNumber.
-                regionMap[regionMap[i.intValue()]] = mergedNumber;
-
+            Set<Integer> sources = new HashSet<>();
+            for (Integer i : connectorsMap.get(connector)) {
+                sources.add(merged[i]);
             }
-            openRegions.add(mergedNumber);
+
+            int dest = sources.iterator().next().intValue();
+            sources.remove(dest);
+
+            for (int i = 0; i < currentRegion; ++i) {
+                if (sources.contains(merged[i])) {
+                    merged[i] = dest;
+                }
+            }
+
+            openRegions.removeAll(sources);
+
+            for (int i = 0; i < connectors.length; ++i) {
+                if (connectors[i] == null) {
+                    continue;
+                }
+                // Don't allow adjacent connectors.
+                if (connector.isAdjacent(connectors[i])) {
+                    connectors[i] = null;
+                    continue;
+                }
+                // Remove connectors no longer connecting different regions.
+                Set<Integer> regions = new HashSet<>();
+                for (Integer reg : connectorsMap.get(connectors[i])) {
+                    regions.add(merged[reg.intValue()]);
+                }
+                if (regions.size() <= 1) {
+                    connectors[i] = null;
+                    continue;
+                }
+                // Occasionally carve out extra connectors.
+                int factor = RandomUtils.uniform(random, EXTRA_CONNECTOR_CHANCE);
+                if (factor == 1) {
+                    addJunction(connectors[i]);
+                }
+            }
+
             ++index;
         }
 
+    }
+
+    private void addJunction(Position pos) {
+        TETile tile;
+        int factor = RandomUtils.uniform(random, 3);
+        switch (factor) {
+            case 0:
+                tile = FLOOR;
+                break;
+            case 1:
+                tile = Tileset.LOCKED_DOOR; // TODO: Add to params.
+                break;
+            case 2:
+                tile = Tileset.UNLOCKED_DOOR;
+                break;
+            default:
+                tile = FLOOR;
+                break;
+        }
+        // Write to world.
+        world.setTile(pos.getX(), pos.getY(), tile);
     }
 
     private void fillRegionMask(Rect r, int regionId) {
@@ -312,11 +365,66 @@ public class Dungeon extends AbstractWorldGenerator {
         }
     }
 
-    private int queryRegionMap(int[] map, int n) {
-        if (map[n] == 0) {
-            return n;
-        } else {
-            return map[n];
+    private void removeDeadEnds() {
+        boolean done = false;
+
+        while (!done) {
+            done = true;
+
+            for (int i = 1; i < world.WIDTH - 1; ++i) {
+                for (int j = 1; j < world.HEIGHT - 1; ++j) {
+                    Position pos = new Position(i, j);
+                    if (world.getTile(pos) == WALL) {
+                        continue;
+                    }
+
+                    int exits = 0;
+                    for (Direction dir : Direction.values()) {
+                        if (world.getTile(pos.add(dir)) != WALL) {
+                            ++exits;
+                        }
+                    }
+
+                    if (exits != 1) {
+                        continue;
+                    }
+
+                    // Remove tile.
+                    done = false;
+                    world.setTile(i, j, WALL);
+                }
+            }
+        }
+    }
+
+    private void removeExtraWalls() {
+        Vector<Position> extraWalls = new Vector<>();
+        for (int i = 0; i < world.WIDTH; ++i) {
+            for (int j = 0; j < world.HEIGHT; ++j) {
+                Position pos = new Position(i, j);
+                if (world.getTile(pos) != WALL) {
+                    continue;
+                }
+                // Add to remove list if surrounded by walls.
+                int exits = 0;
+                for (Direction dir : Direction.values()) {
+                    Position newPos = pos.add(dir);
+                    if (world.contains(newPos) && world.getTile(newPos) != WALL) {
+                        ++exits;
+                    }
+                }
+
+                if (exits != 0) {
+                    continue;
+                }
+
+                extraWalls.add(pos);
+            }
+        }
+
+        // Remove.
+        for (Position pos : extraWalls) {
+            world.setTile(pos.getX(), pos.getY(), Tileset.NOTHING);
         }
     }
 
